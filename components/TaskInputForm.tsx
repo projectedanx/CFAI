@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 
 interface TaskInputFormProps {
@@ -21,14 +20,14 @@ const TaskInputForm: React.FC<TaskInputFormProps> = ({ onSubmit, isLoading, isSi
     <div className="bg-brand-surface border border-brand-border rounded-xl p-6 shadow-lg">
       <form onSubmit={handleSubmit}>
         <label htmlFor="task-input" className="block text-lg font-semibold mb-2 text-brand-text-primary">
-          Enter a Complex Task or Question
+          Define the Collaborative Mandate
         </label>
         <textarea
           id="task-input"
           value={task}
           onChange={(e) => setTask(e.target.value)}
-          placeholder="e.g., Explain the process of photosynthesis and its importance for life on Earth."
-          className="w-full h-28 p-3 bg-brand-bg border border-brand-border rounded-md focus:ring-2 focus:ring-brand-accent focus:outline-none transition duration-200"
+          placeholder="e.g., Design a water management system for an arid region, balancing technological efficiency with local ecological rhythms."
+          className="w-full h-28 p-3 bg-brand-bg border border-brand-border rounded-md focus:ring-2 focus:ring-brand-accent focus:outline-none transition duration-200 text-brand-text-primary"
           disabled={isLoading || isSimulating}
         />
         <button
@@ -45,7 +44,7 @@ const TaskInputForm: React.FC<TaskInputFormProps> = ({ onSubmit, isLoading, isSi
               Initializing...
             </>
           ) : (
-            'Start Emergent Learning'
+            'Start Agentic Affordance Sync'
           )}
         </button>
       </form>

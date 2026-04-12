@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { ModelId, Message, Model, LearningDataPoint } from './types';
+import { ModelId, Message, Model, LearningDataPoint, SymbolicScar } from './types';
 import { splitTask, generateResponse, evaluateContribution } from './services/geminiService';
 import Header from './components/Header';
 import TaskInputForm from './components/TaskInputForm';
@@ -12,11 +12,12 @@ const MAX_TURNS = 10;
 const App: React.FC = () => {
   const [task, setTask] = useState<string>('');
   const [models, setModels] = useState<Record<ModelId, Model>>({
-    [ModelId.A]: { id: ModelId.A, name: 'Model A', fragment: '', knowledgeScore: 0 },
-    [ModelId.B]: { id: ModelId.B, name: 'Model B', fragment: '', knowledgeScore: 0 },
+    [ModelId.A]: { id: ModelId.A, name: 'Agent Alpha', lens: '' },
+    [ModelId.B]: { id: ModelId.B, name: 'Agent Beta', lens: '' },
   });
   const [conversation, setConversation] = useState<Message[]>([]);
   const [learningHistory, setLearningHistory] = useState<LearningDataPoint[]>([]);
+  const [symbolicScars, setSymbolicScars] = useState<SymbolicScar[]>([]);
   const [currentTurn, setCurrentTurn] = useState<number>(0);
   const [activeModel, setActiveModel] = useState<ModelId>(ModelId.A);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -31,11 +32,12 @@ const App: React.FC = () => {
   const resetState = () => {
     setTask('');
     setModels({
-      [ModelId.A]: { id: ModelId.A, name: 'Model A', fragment: '', knowledgeScore: 0 },
-      [ModelId.B]: { id: ModelId.B, name: 'Model B', fragment: '', knowledgeScore: 0 },
+      [ModelId.A]: { id: ModelId.A, name: 'Agent Alpha', lens: '' },
+      [ModelId.B]: { id: ModelId.B, name: 'Agent Beta', lens: '' },
     });
     setConversation([]);
     setLearningHistory([]);
+    setSymbolicScars([]);
     setCurrentTurn(0);
     setActiveModel(ModelId.A);
     setIsLoading(false);
@@ -49,12 +51,12 @@ const App: React.FC = () => {
     setError(null);
     try {
       setTask(submittedTask);
-      const { fragmentA, fragmentB } = await splitTask(submittedTask);
+      const { lensA, lensB } = await splitTask(submittedTask);
       setModels({
-        [ModelId.A]: { id: ModelId.A, name: 'Model A', fragment: fragmentA, knowledgeScore: 10 },
-        [ModelId.B]: { id: ModelId.B, name: 'Model B', fragment: fragmentB, knowledgeScore: 10 },
+        [ModelId.A]: { id: ModelId.A, name: 'Agent Alpha', lens: lensA },
+        [ModelId.B]: { id: ModelId.B, name: 'Agent Beta', lens: lensB },
       });
-      setLearningHistory([{ turn: 0, modelAScore: 10, modelBScore: 10 }]);
+      setLearningHistory([{ turn: 0, cfdi: 0, bai: 0 }]);
       setCurrentTurn(1);
       setIsSimulating(true);
     } catch (err) {
@@ -68,37 +70,32 @@ const App: React.FC = () => {
     if (!isSimulatingRef.current || currentTurn > MAX_TURNS) {
       if (isSimulatingRef.current) {
         setIsSimulating(false);
-        setConversation(prev => [...prev, { sender: 'system', content: 'Simulation complete. Maximum turns reached.', turn: currentTurn }]);
+        setConversation(prev => [...prev, { sender: 'system', content: 'Collaboration sequence complete. Maximum turns reached.', turn: currentTurn }]);
       }
       return;
     }
   
-    const conversationText = conversation.map(m => `${m.sender === 'system' ? 'SYSTEM' : `Model ${m.sender}`}: ${m.content}`).join('\n');
+    const conversationText = conversation.map(m => `${m.sender === 'system' ? 'SYSTEM' : `Agent ${m.sender}`}: ${m.content}`).join('\n');
     const modelToAct = models[activeModel];
   
     try {
-      const responseContent = await generateResponse(modelToAct.name, modelToAct.fragment, conversationText);
+      const responseContent = await generateResponse(modelToAct.name, modelToAct.lens, conversationText);
       const newMessage: Message = { sender: activeModel, content: responseContent, turn: currentTurn };
       setConversation(prev => [...prev, newMessage]);
   
-      const updatedConversationText = `${conversationText}\nModel ${activeModel}: ${responseContent}`;
-      const { score } = await evaluateContribution(task, updatedConversationText);
+      const updatedConversationText = `${conversationText}\nAgent ${activeModel}: ${responseContent}`;
+      const { cfdi, bai, reasoning } = await evaluateContribution(task, updatedConversationText);
   
-      setModels(prevModels => ({
-        ...prevModels,
-        [activeModel]: {
-          ...prevModels[activeModel],
-          knowledgeScore: Math.min(100, prevModels[activeModel].knowledgeScore + score),
-        }
-      }));
-      
-      setLearningHistory(prev => {
-          const newScores = {
-              modelAScore: activeModel === ModelId.A ? Math.min(100, models[ModelId.A].knowledgeScore + score) : models[ModelId.A].knowledgeScore,
-              modelBScore: activeModel === ModelId.B ? Math.min(100, models[ModelId.B].knowledgeScore + score) : models[ModelId.B].knowledgeScore,
-          };
-          return [...prev, { turn: currentTurn, ...newScores }];
-      });
+      setLearningHistory(prev => [...prev, { turn: currentTurn, cfdi, bai }]);
+
+      if (bai > 70) {
+        setSymbolicScars(prev => [...prev, {
+            id: `scar-${currentTurn}-${Date.now()}`,
+            turn: currentTurn,
+            bai,
+            reasoning
+        }]);
+      }
   
       setActiveModel(prev => (prev === ModelId.A ? ModelId.B : ModelId.A));
       setCurrentTurn(prev => prev + 1);
@@ -142,6 +139,23 @@ const App: React.FC = () => {
         </div>
         
         <LearningProgressChart data={learningHistory} />
+
+        {symbolicScars.length > 0 && (
+          <div className="bg-brand-surface border border-brand-border rounded-xl p-6 shadow-lg">
+            <h3 className="text-xl font-semibold text-red-400 mb-4">Symbolic Scars (BAI &gt; 70)</h3>
+            <ul className="space-y-4">
+                {symbolicScars.map(scar => (
+                    <li key={scar.id} className="p-4 bg-red-900/20 border border-red-800 rounded-lg">
+                        <div className="flex justify-between text-sm text-red-300 mb-2">
+                            <span>Turn: {scar.turn}</span>
+                            <span>BAI: {scar.bai}</span>
+                        </div>
+                        <p className="text-brand-text-primary text-sm">{scar.reasoning}</p>
+                    </li>
+                ))}
+            </ul>
+          </div>
+        )}
         
         {conversation.find(m => m.sender === 'system') && (
              <div className="bg-brand-surface border border-brand-border rounded-xl p-6 shadow-lg text-center">
@@ -151,14 +165,14 @@ const App: React.FC = () => {
                   onClick={resetState}
                   className="mt-4 bg-brand-accent text-white font-bold py-2 px-6 rounded-md hover:bg-blue-500 transition duration-200"
                 >
-                  Start New Simulation
+                  Start New Collaboration
                 </button>
              </div>
         )}
 
       </main>
       <footer className="text-center p-4 text-brand-text-secondary text-sm border-t border-brand-border">
-        <p>Cogni-Forge AI &copy; 2024. A conceptual demonstration.</p>
+        <p>Epistemic Cartographer &copy; 2024. Preventing Epistemic Monoculture.</p>
       </footer>
     </div>
   );

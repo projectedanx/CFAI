@@ -1,4 +1,3 @@
-
 export enum ModelId {
   A = 'A',
   B = 'B',
@@ -13,12 +12,18 @@ export interface Message {
 export interface Model {
   id: ModelId;
   name: string;
-  fragment: string;
-  knowledgeScore: number;
+  lens: string;
 }
 
 export interface LearningDataPoint {
   turn: number;
-  modelAScore: number;
-  modelBScore: number;
+  cfdi: number;
+  bai: number;
+}
+
+export interface SymbolicScar {
+  id: string;
+  turn: number;
+  bai: number;
+  reasoning: string;
 }
