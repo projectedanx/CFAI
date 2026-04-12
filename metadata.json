@@ -1,0 +1,5 @@
+{
+  "name": "Cogni-Forge AI: EmergentReason",
+  "description": "A collaborative, self-evolving AI training environment where two models learn from each other through iterative dialogue and mutual feedback, leading to emergent reasoning capabilities and novel problem-solving strategies without direct human demonstration.",
+  "requestFramePermissions": []
+}
