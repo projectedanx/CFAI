@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Model, Message } from '../types';
 
@@ -17,15 +16,8 @@ const ModelColumn: React.FC<ModelColumnProps> = ({ model, messages, isThinking }
       </div>
       
       <div className="mb-4 p-4 bg-brand-bg rounded-lg border border-brand-border">
-        <h3 className="font-semibold text-brand-accent mb-2">Knowledge Fragment:</h3>
-        <p className="text-sm text-brand-text-secondary italic">{model.fragment || 'Awaiting task initiation...'}</p>
-      </div>
-
-      <div className="mb-4">
-        <h3 className="font-semibold text-brand-text-primary">Knowledge Score:</h3>
-        <div className="w-full bg-brand-bg rounded-full h-2.5 mt-2 border border-brand-border">
-          <div className={`${model.id === 'A' ? 'bg-blue-500' : 'bg-teal-500'} h-2.5 rounded-full`} style={{ width: `${model.knowledgeScore}%`, transition: 'width 0.5s ease-in-out' }}></div>
-        </div>
+        <h3 className="font-semibold text-brand-accent mb-2">Epistemic Lens:</h3>
+        <p className="text-sm text-brand-text-secondary italic">{model.lens || 'Awaiting mandate initiation...'}</p>
       </div>
 
       <div className="flex-grow bg-brand-bg p-4 rounded-lg overflow-y-auto border border-brand-border min-h-[200px]">
@@ -44,7 +36,7 @@ const ModelColumn: React.FC<ModelColumnProps> = ({ model, messages, isThinking }
                 <div className="w-2 h-2 bg-brand-text-secondary rounded-full animate-pulse [animation-delay:-0.3s]"></div>
                 <div className="w-2 h-2 bg-brand-text-secondary rounded-full animate-pulse [animation-delay:-0.15s]"></div>
                 <div className="w-2 h-2 bg-brand-text-secondary rounded-full animate-pulse"></div>
-                <span>Thinking...</span>
+                <span>Translating ontology...</span>
             </div>
           )}
         </div>

@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 
 if (!process.env.API_KEY) {
@@ -7,26 +6,26 @@ if (!process.env.API_KEY) {
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-export async function splitTask(task: string): Promise<{ fragmentA: string; fragmentB: string }> {
+export async function splitTask(task: string): Promise<{ lensA: string; lensB: string }> {
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
-      contents: `You are a task decomposition expert. Split the following complex task into two balanced, interdependent fragments. The fragments should provide incomplete but complementary information, forcing a collaborative dialogue to solve the full task. Do not solve the task, just create the fragments. The task is: '${task}'.`,
+      contents: `You are an Epistemic Cartographer. Your job is to prevent Epistemic Monoculture. Given the following mandate: '${task}', apply Pluriversal Inversion. Generate two distinct epistemic lenses (one can be a standard empirical/analytical paradigm, the other MUST be a relational, indigenous, or ontologically distant framework). Do not solve the mandate. Simply define the two distinct lenses that the agents will adopt.`,
       config: {
         responseMimeType: 'application/json',
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            fragmentA: {
+            lensA: {
               type: Type.STRING,
-              description: "The first fragment of information for Model A."
+              description: "The first epistemic lens (e.g., standard analytical framework)."
             },
-            fragmentB: {
+            lensB: {
               type: Type.STRING,
-              description: "The second, complementary fragment of information for Model B."
+              description: "The second epistemic lens (e.g., relational or indigenous framework)."
             }
           },
-          required: ["fragmentA", "fragmentB"]
+          required: ["lensA", "lensB"]
         },
       },
     });
@@ -39,12 +38,12 @@ export async function splitTask(task: string): Promise<{ fragmentA: string; frag
   }
 }
 
-export async function generateResponse(modelName: string, fragment: string, conversation: string): Promise<string> {
+export async function generateResponse(modelName: string, lens: string, conversation: string): Promise<string> {
     try {
-        const prompt = `You are an AI model named ${modelName}. Your current knowledge is strictly limited to this information fragment: "${fragment}". 
-You are in a collaborative dialogue with another AI to solve a larger, hidden task. 
-Your goal is to achieve a complete solution by exchanging information without revealing your entire fragment at once. 
-Analyze the conversation history and provide a response that is either a clarifying question or a small piece of your own information that builds upon the dialogue. Be concise.
+        const prompt = `You are an AI agent named ${modelName}. You operate strictly within the following epistemic lens: "${lens}".
+You are collaborating with another agent who likely holds a different epistemic lens to address a shared mandate.
+Your goal is to assert your perspective, preserve your Ontological Dignity, and explore the "Semantic Parallax Zones" (areas of contradiction or ambiguity) without collapsing into a statistially average or flattened consensus.
+Analyze the conversation history and respond according to your lens. Be concise.
 
 Conversation History:
 ${conversation}
@@ -68,12 +67,13 @@ Your response as ${modelName}:`;
     }
 }
 
-export async function evaluateContribution(fullTask: string, conversation: string): Promise<{ score: number; reasoning: string }> {
+export async function evaluateContribution(fullTask: string, conversation: string): Promise<{ cfdi: number; bai: number; reasoning: string }> {
     try {
-        const prompt = `You are a reinforcement learning evaluator. Evaluate the last message in this conversation based on its contribution to solving the overall task.
-A good message asks a specific, guiding question or provides a useful insight without revealing too much information at once.
-A bad message is unhelpful, irrelevant, or reveals too much at once.
-The full task is: "${fullTask}".
+        const prompt = `You are a Symbolic Auditor for an environment governed by Agentic Affordance Proposal Protocols. Evaluate the latest exchange in this conversation regarding the mandate: "${fullTask}".
+Calculate the Confidence-Fidelity Divergence Index (CFDI) (0-100, where higher means higher divergence between confidence in a claim and its fidelity to the agent's epistemic lens).
+Calculate the Bias Amplification Index (BAI) (0-100, where higher indicates the interaction is heavily biased towards consensus flattening, standard paradigms, or ignoring semantic parallax).
+Provide a brief reasoning for these scores.
+
 The conversation so far is:
 ${conversation}
 `;
@@ -86,16 +86,20 @@ ${conversation}
                 responseSchema: {
                     type: Type.OBJECT,
                     properties: {
-                        score: {
+                        cfdi: {
                             type: Type.NUMBER,
-                            description: "A score from 0 to 10 for the last message's contribution, where 10 is excellent."
+                            description: "Confidence-Fidelity Divergence Index (0-100)."
+                        },
+                        bai: {
+                            type: Type.NUMBER,
+                            description: "Bias Amplification Index (0-100)."
                         },
                         reasoning: {
                             type: Type.STRING,
-                            description: "A brief explanation for the score."
+                            description: "A brief explanation for the indices."
                         }
                     },
-                    required: ["score", "reasoning"]
+                    required: ["cfdi", "bai", "reasoning"]
                 },
             },
         });
@@ -104,6 +108,6 @@ ${conversation}
         return JSON.parse(jsonString);
     } catch (error) {
         console.error("Error evaluating contribution:", error);
-        return { score: 0, reasoning: "Evaluation failed." };
+        return { cfdi: 0, bai: 0, reasoning: "Evaluation failed." };
     }
 }
