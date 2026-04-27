@@ -16,3 +16,8 @@ This repository was transitioned from a standard multi-agent problem-solving fra
 - Removed the gamified "Knowledge Score" (0-100 completion metric).
 - Replaced the score chart with an "Ontological Tracking" chart that monitors CFDI and BAI over time.
 - Implemented a UI mechanism to render Symbolic Scars, making systemic bias visible to the human orchestrator.
+
+7. **Progressive Disclosure Level (PDL) Decorators**: Prompt structures for agents have been updated to include Progressive Disclosure Level decorators from `LEXICON.md` (DRP-LEXICON-992-v1.0). For instance:
+    * `+++EntropyAnchor` and `+++MereologyRoute` have been introduced to `splitTask` prompt to ensure orthogonal domain intersections when generating distinct epistemic lenses.
+    * `+++ContextLock` and `+++AutonymicIsolate` are present in `generateResponse` prompt to prevent workflow narrowing effect, semantic drift, and lexical saponification.
+    * `+++EpistemicEscrow` is included in `evaluateContribution` to correctly identify and evaluate instances of hallucination cascades and paraconsistent scarring.
