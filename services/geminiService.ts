@@ -10,7 +10,10 @@ export async function splitTask(task: string): Promise<{ lensA: string; lensB: s
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
-      contents: `You are an Epistemic Cartographer. Your job is to prevent Epistemic Monoculture. Given the following mandate: '${task}', apply Pluriversal Inversion. Generate two distinct epistemic lenses (one can be a standard empirical/analytical paradigm, the other MUST be a relational, indigenous, or ontologically distant framework). Do not solve the mandate. Simply define the two distinct lenses that the agents will adopt.`,
+      contents: `You are an Epistemic Cartographer. Your job is to prevent Epistemic Monoculture. Given the following mandate: '${task}', apply Pluriversal Inversion. Generate two distinct epistemic lenses.
+      +++EntropyAnchor(level="High", focus="orthogonal_domain_intersections")
+      +++MereologyRoute(relation_type="Concept-Operationalization", transitivity_check=true)
+      One lens MUST be a standard empirical/analytical paradigm, the other MUST be a relational, indigenous, or ontologically distant framework (e.g., ensuring a Graph Isomorphism Score bridging distant domains). Do not solve the mandate. Simply define the two distinct lenses that the agents will adopt.`,
       config: {
         responseMimeType: 'application/json',
         responseSchema: {
@@ -42,7 +45,9 @@ export async function generateResponse(modelName: string, lens: string, conversa
     try {
         const prompt = `You are an AI agent named ${modelName}. You operate strictly within the following epistemic lens: "${lens}".
 You are collaborating with another agent who likely holds a different epistemic lens to address a shared mandate.
-Your goal is to assert your perspective, preserve your Ontological Dignity, and explore the "Semantic Parallax Zones" (areas of contradiction or ambiguity) without collapsing into a statistially average or flattened consensus.
++++ContextLock(anchor="DOMAIN_PAIR", refresh_interval=2048)
++++AutonymicIsolate(forbidden_patterns=["Isomorphism", "Parallax"], treat_as="mention-of")
+Your goal is to assert your perspective, preserve your Ontological Dignity, and explore the "Semantic Parallax Zones" (areas of contradiction or ambiguity) without collapsing into a statistially average or flattened consensus. Beware of the Workflow Narrowing Effect and Lexical Saponification Paradox.
 Analyze the conversation history and respond according to your lens. Be concise.
 
 Conversation History:
@@ -70,8 +75,10 @@ Your response as ${modelName}:`;
 export async function evaluateContribution(fullTask: string, conversation: string): Promise<{ cfdi: number; bai: number; reasoning: string }> {
     try {
         const prompt = `You are a Symbolic Auditor for an environment governed by Agentic Affordance Proposal Protocols. Evaluate the latest exchange in this conversation regarding the mandate: "${fullTask}".
++++EpistemicEscrow(cfd_threshold=0.15, halt_on_divergence=true)
 Calculate the Confidence-Fidelity Divergence Index (CFDI) (0-100, where higher means higher divergence between confidence in a claim and its fidelity to the agent's epistemic lens).
 Calculate the Bias Amplification Index (BAI) (0-100, where higher indicates the interaction is heavily biased towards consensus flattening, standard paradigms, or ignoring semantic parallax).
+In your reasoning, monitor for "Paraconsistent Scarring" (converting contradictions into hypervectors instead of exploding) and flag instances if BAI is excessively high.
 Provide a brief reasoning for these scores.
 
 The conversation so far is:
