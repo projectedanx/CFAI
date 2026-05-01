@@ -23,6 +23,8 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSimulating, setIsSimulating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [awaitingIntervention, setAwaitingIntervention] = useState<boolean>(false);
+  const [humanInput, setHumanInput] = useState<string>('');
 
   const isSimulatingRef = useRef(isSimulating);
   useEffect(() => {
@@ -43,6 +45,8 @@ const App: React.FC = () => {
     setIsLoading(false);
     setIsSimulating(false);
     setError(null);
+    setAwaitingIntervention(false);
+    setHumanInput('');
   }
 
   const handleTaskSubmit = async (submittedTask: string) => {
@@ -75,7 +79,7 @@ const App: React.FC = () => {
       return;
     }
   
-    const conversationText = conversation.map(m => `${m.sender === 'system' ? 'SYSTEM' : `Agent ${m.sender}`}: ${m.content}`).join('\n');
+    const conversationText = conversation.map(m => `${m.sender === 'system' ? 'SYSTEM' : m.sender === 'human' ? 'SYSTEM: [HUMAN INTERVENTION]' : `Agent ${m.sender}`}: ${m.content}`).join('\n');
     const modelToAct = models[activeModel];
   
     try {
@@ -95,6 +99,9 @@ const App: React.FC = () => {
             bai,
             reasoning
         }]);
+        setAwaitingIntervention(true);
+        setIsSimulating(false);
+        return;
       }
   
       setActiveModel(prev => (prev === ModelId.A ? ModelId.B : ModelId.A));
@@ -104,6 +111,15 @@ const App: React.FC = () => {
       setIsSimulating(false);
     }
   }, [activeModel, conversation, currentTurn, models, task]);
+
+
+  const handleHumanInterventionSubmit = () => {
+    if (!humanInput.trim()) return;
+    setConversation(prev => [...prev, { sender: 'human', content: humanInput, turn: currentTurn }]);
+    setAwaitingIntervention(false);
+    setHumanInput('');
+    setIsSimulating(true);
+  };
 
   useEffect(() => {
     if (isSimulating && currentTurn > 0 && currentTurn <= MAX_TURNS) {
@@ -138,7 +154,31 @@ const App: React.FC = () => {
           />
         </div>
         
+
         <LearningProgressChart data={learningHistory} />
+
+        {awaitingIntervention && (
+          <div className="bg-brand-surface border border-yellow-600 rounded-xl p-6 shadow-lg">
+            <h3 className="text-xl font-semibold text-yellow-500 mb-4">Epistemic Mirror Trap Detected (BAI &gt; 70)</h3>
+            <p className="text-brand-text-secondary mb-4">
+              The agents are converging too quickly on a standard paradigm, risking Epistemic Monoculture.
+              Provide a Context-Mediated Domain Adaptation (Human Intervention) to inject ground truth or a divergent perspective.
+            </p>
+            <textarea
+              className="w-full bg-brand-bg border border-brand-border rounded-lg p-3 text-brand-text-primary focus:outline-none focus:border-brand-accent mb-4"
+              rows={4}
+              placeholder="Inject tacit knowledge or redirect the ontological trajectory..."
+              value={humanInput}
+              onChange={(e) => setHumanInput(e.target.value)}
+            />
+            <button
+              onClick={handleHumanInterventionSubmit}
+              className="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 px-6 rounded-lg transition duration-200"
+            >
+              Inject Context & Resume Simulation
+            </button>
+          </div>
+        )}
 
         {symbolicScars.length > 0 && (
           <div className="bg-brand-surface border border-brand-border rounded-xl p-6 shadow-lg">

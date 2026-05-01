@@ -21,3 +21,8 @@ This repository was transitioned from a standard multi-agent problem-solving fra
     * `+++EntropyAnchor` and `+++MereologyRoute` have been introduced to `splitTask` prompt to ensure orthogonal domain intersections when generating distinct epistemic lenses.
     * `+++ContextLock` and `+++AutonymicIsolate` are present in `generateResponse` prompt to prevent workflow narrowing effect, semantic drift, and lexical saponification.
     * `+++EpistemicEscrow` is included in `evaluateContribution` to correctly identify and evaluate instances of hallucination cascades and paraconsistent scarring.
+
+## Context-Mediated Domain Adaptation (Human-in-the-Loop)
+- **Problem**: When left strictly autonomous, agents can still fall into "Polyglot Hallucination Resonance" or "Sycophantic Attractors," resulting in high Bias Amplification Index (BAI > 70) and a flattened consensus.
+- **Solution**: Implemented a Human-in-the-Loop Reflexive Intervention mechanism. When BAI > 70, the simulation halts and prompts the human user to inject tacit knowledge or qualitative adjustments.
+- **Mechanism**: The human input is appended to the context window with the `+++DictionaryAnchor` PDL decorator, signaling to the generative model that this intervention represents non-negotiable ground truth. This prevents the "Workflow Narrowing Effect" by actively breaking epistemic monocultures with human reflexivity.
