@@ -11,6 +11,7 @@ This application constructs and governs Persistent Collaborative Environments wh
 - **Pluriversal Inversion:** Assigns divergent epistemic lenses to collaborating agents to ensure Ontological Dignity.
 - **Ontological Tracking:** Monitors the Confidence-Fidelity Divergence Index (CFDI) and Bias Amplification Index (BAI) in real-time.
 - **Symbolic Scar Logging:** Flags instances where the environment over-optimizes for consensus at the expense of non-standard paradigms.
+- **Human-in-the-Loop Intervention:** Automatically pauses simulations to request Context-Mediated Domain Adaptation when the Bias Amplification Index (BAI) exceeds safe thresholds.
 
 View your app in AI Studio: https://ai.studio/apps/drive/1oQmLsxFzUO7tq7HJSxPjsGvDP8Wg7aMi
 

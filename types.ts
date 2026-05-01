@@ -4,7 +4,7 @@ export enum ModelId {
 }
 
 export interface Message {
-  sender: ModelId | 'system';
+  sender: ModelId | 'system' | 'human';
   content: string;
   turn: number;
 }
