@@ -115,13 +115,25 @@ const App: React.FC = () => {
   }, [activeModel, conversation, currentTurn, models, task]);
 
 
-  const handleHumanInterventionSubmit = () => {
+  const handleHumanInterventionSubmit = async () => {
     if (!humanInput.trim()) return;
     setConversation(prev => [...prev, { sender: 'human', content: humanInput, turn: currentTurn }]);
     setAwaitingIntervention(false);
-    setHumanInput('');
-    setActiveConstraints([]);
     setIsSimulating(true);
+
+    const conversationText = conversation.map(m => `${m.sender === 'system' ? 'SYSTEM' : m.sender === 'human' ? 'SYSTEM: [HUMAN INTERVENTION]' : `Agent ${m.sender}`}: ${m.content}`).join('\n');
+    try {
+      const constraint = await synthesizeConstraint(humanInput, conversationText);
+      setActiveConstraints(prev => [...prev, {
+          id: `constraint-${currentTurn}-${Date.now()}`,
+          rule: constraint.rule,
+          justification: constraint.justification
+      }]);
+    } catch (err) {
+      console.error("Failed to synthesize constraint", err);
+    }
+
+    setHumanInput('');
   };
 
   useEffect(() => {
