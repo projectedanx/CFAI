@@ -20,9 +20,9 @@ The system currently halts when `BAI > 70` for Human Intervention. The emergence
 
 ## 3. Rigorous Implementation Checklist
 - [x] **Phase 1: OBSERVE & THINK** - Establish the Architectural Strategy and Value Proposition (This document).
-- [ ] **Phase 2: ARCHITECT** - Modify `types.ts` to include an `EmergentConstraint` interface containing the formalized rule and its justification.
-- [ ] **Phase 3: DAG** - Update `services/geminiService.ts` with a `synthesizeConstraint` function to translate human interventions into structured `EmergentConstraints`.
-- [ ] **Phase 4: DAG** - Update `App.tsx` state to maintain `activeConstraints` and trigger the synthesis when human intervention occurs.
-- [ ] **Phase 5: DAG** - Integrate `activeConstraints` into the `generateResponse` prompt to structurally bind the generative agents.
-- [ ] **Phase 6: EVALUATE** - Update `README.md` and `lessons_learned.md` to reflect the newly integrated Dynamic Constraint Inversion paradigm.
+- [x] **Phase 2: ARCHITECT** - Modify `types.ts` to include an `EmergentConstraint` interface containing the formalized rule and its justification.
+- [x] **Phase 3: DAG** - Update `services/geminiService.ts` with a `synthesizeConstraint` function to translate human interventions into structured `EmergentConstraints`.
+- [x] **Phase 4: DAG** - Update `App.tsx` state to maintain `activeConstraints` and trigger the synthesis when human intervention occurs.
+- [x] **Phase 5: DAG** - Integrate `activeConstraints` into the `generateResponse` prompt to structurally bind the generative agents.
+- [x] **Phase 6: EVALUATE** - Update `README.md` and `lessons_learned.md` to reflect the newly integrated Dynamic Constraint Inversion paradigm.
 - [ ] **Phase 7: Pre-commit** - Run formatting and validation checks.
