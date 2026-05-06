@@ -41,12 +41,14 @@ export async function splitTask(task: string): Promise<{ lensA: string; lensB: s
   }
 }
 
-export async function generateResponse(modelName: string, lens: string, conversation: string): Promise<string> {
+export async function generateResponse(modelName: string, lens: string, conversation: string, activeConstraints: { id: string, rule: string, justification: string }[] = []): Promise<string> {
     try {
         const prompt = `You are an AI agent named ${modelName}. You operate strictly within the following epistemic lens: "${lens}".
 You are collaborating with another agent who likely holds a different epistemic lens to address a shared mandate.
 +++ContextLock(anchor="DOMAIN_PAIR", refresh_interval=2048)
 +++AutonymicIsolate(forbidden_patterns=["Isomorphism", "Parallax"], treat_as="mention-of")
+
+${activeConstraints.length > 0 ? `\n+++DCCDSchemaGuard(schema="EmergentConstraints", enforcement="strict")\nThe following constraints have emerged from human intervention and must be strictly adhered to:\n` + activeConstraints.map(c => `- ${c.rule} (Justification: ${c.justification})`).join('\n') + '\n' : ''}
 Your goal is to assert your perspective, preserve your Ontological Dignity, and explore the "Semantic Parallax Zones" (areas of contradiction or ambiguity) without collapsing into a statistially average or flattened consensus. Beware of the Workflow Narrowing Effect and Lexical Saponification Paradox.
 
 +++DictionaryAnchor(ground_truth="HUMAN INTERVENTION", enforcement="strict")
@@ -120,4 +122,47 @@ ${conversation}
         console.error("Error evaluating contribution:", error);
         return { cfdi: 0, bai: 0, reasoning: "Evaluation failed." };
     }
+}
+
+export async function synthesizeConstraint(humanInput: string, conversation: string): Promise<{ rule: string; justification: string }> {
+  try {
+    const prompt = `You are an Antifragile Epistemic Weaver (AEW). A human has intervened in the following conversation to prevent an epistemic monoculture.
+Your task is to analyze the human's input and formalize it into a strict structural constraint (a rule) that the agents must follow in subsequent turns.
+Also provide a brief justification for this rule based on the context.
+
+Conversation History:
+\${conversation}
+
+Human Intervention:
+\${humanInput}
+`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            rule: {
+              type: Type.STRING,
+              description: "The formalized constraint or rule."
+            },
+            justification: {
+              type: Type.STRING,
+              description: "A brief justification for the constraint."
+            }
+          },
+          required: ["rule", "justification"]
+        },
+      },
+    });
+
+    const jsonString = response.text;
+    return JSON.parse(jsonString);
+  } catch (error) {
+    console.error("Error synthesizing constraint:", error);
+    throw new Error("Failed to synthesize constraint.");
+  }
 }

@@ -27,3 +27,9 @@ export interface SymbolicScar {
   bai: number;
   reasoning: string;
 }
+
+export interface EmergentConstraint {
+  id: string;
+  rule: string;
+  justification: string;
+}
