@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { ModelId, Message, Model, LearningDataPoint, SymbolicScar } from './types';
-import { splitTask, generateResponse, evaluateContribution } from './services/geminiService';
+import { ModelId, Message, Model, LearningDataPoint, SymbolicScar, EmergentConstraint } from './types';
+import { splitTask, generateResponse, evaluateContribution, synthesizeConstraint } from './services/geminiService';
 import Header from './components/Header';
 import TaskInputForm from './components/TaskInputForm';
 import ModelColumn from './components/ModelColumn';
@@ -25,6 +25,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [awaitingIntervention, setAwaitingIntervention] = useState<boolean>(false);
   const [humanInput, setHumanInput] = useState<string>('');
+  const [activeConstraints, setActiveConstraints] = useState<EmergentConstraint[]>([]);
 
   const isSimulatingRef = useRef(isSimulating);
   useEffect(() => {
@@ -47,6 +48,7 @@ const App: React.FC = () => {
     setError(null);
     setAwaitingIntervention(false);
     setHumanInput('');
+    setActiveConstraints([]);
   }
 
   const handleTaskSubmit = async (submittedTask: string) => {
@@ -83,7 +85,7 @@ const App: React.FC = () => {
     const modelToAct = models[activeModel];
   
     try {
-      const responseContent = await generateResponse(modelToAct.name, modelToAct.lens, conversationText);
+      const responseContent = await generateResponse(modelToAct.name, modelToAct.lens, conversationText, activeConstraints);
       const newMessage: Message = { sender: activeModel, content: responseContent, turn: currentTurn };
       setConversation(prev => [...prev, newMessage]);
   
@@ -118,6 +120,7 @@ const App: React.FC = () => {
     setConversation(prev => [...prev, { sender: 'human', content: humanInput, turn: currentTurn }]);
     setAwaitingIntervention(false);
     setHumanInput('');
+    setActiveConstraints([]);
     setIsSimulating(true);
   };
 
@@ -155,7 +158,23 @@ const App: React.FC = () => {
         </div>
         
 
-        <LearningProgressChart data={learningHistory} />
+                <LearningProgressChart data={learningHistory} />
+
+        {activeConstraints.length > 0 && (
+          <div className="bg-brand-surface rounded-xl p-6 shadow-lg mb-8">
+            <h3 className="text-xl font-semibold text-brand-accent mb-4">Active Structural Constraints</h3>
+            <ul className="space-y-4">
+                {activeConstraints.map(constraint => (
+                    <li key={constraint.id} className="p-4 bg-brand-bg border border-brand-border rounded-lg">
+                        <div className="flex justify-between text-sm text-brand-text-primary mb-2">
+                            <strong>Rule:</strong> {constraint.rule}
+                        </div>
+                        <p className="text-brand-text-secondary text-sm">Justification: {constraint.justification}</p>
+                    </li>
+                ))}
+            </ul>
+          </div>
+        )}
 
         {awaitingIntervention && (
           <div className="bg-brand-surface border border-yellow-600 rounded-xl p-6 shadow-lg">

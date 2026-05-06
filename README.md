@@ -12,6 +12,8 @@ This application constructs and governs Persistent Collaborative Environments wh
 - **Ontological Tracking:** Monitors the Confidence-Fidelity Divergence Index (CFDI) and Bias Amplification Index (BAI) in real-time.
 - **Symbolic Scar Logging:** Flags instances where the environment over-optimizes for consensus at the expense of non-standard paradigms.
 - **Human-in-the-Loop Intervention:** Automatically pauses simulations to request Context-Mediated Domain Adaptation when the Bias Amplification Index (BAI) exceeds safe thresholds.
+- **Dynamic Constraint Inversion Engine:** Translates human context interventions into active schema evolution, dynamically generating and applying structural constraints (`+++DCCDSchemaGuard`) to future generative operations, effectively inversion-routing the human tacit knowledge into the systemic constraints.
+
 
 View your app in AI Studio: https://ai.studio/apps/drive/1oQmLsxFzUO7tq7HJSxPjsGvDP8Wg7aMi
 

@@ -26,3 +26,8 @@ This repository was transitioned from a standard multi-agent problem-solving fra
 - **Problem**: When left strictly autonomous, agents can still fall into "Polyglot Hallucination Resonance" or "Sycophantic Attractors," resulting in high Bias Amplification Index (BAI > 70) and a flattened consensus.
 - **Solution**: Implemented a Human-in-the-Loop Reflexive Intervention mechanism. When BAI > 70, the simulation halts and prompts the human user to inject tacit knowledge or qualitative adjustments.
 - **Mechanism**: The human input is appended to the context window with the `+++DictionaryAnchor` PDL decorator, signaling to the generative model that this intervention represents non-negotiable ground truth. This prevents the "Workflow Narrowing Effect" by actively breaking epistemic monocultures with human reflexivity.
+
+### Dynamic Constraint Inversion Engine
+- **Evolution**: Previously, human interventions were passive; the user injected knowledge, and the simulation resumed. This lacked structural persistence across multiple turns if the underlying model weights strongly favored the monoculture.
+- **Implementation**: The human intervention is now actively synthesized by an "Antifragile Epistemic Weaver" (a dedicated AI evaluation pass) into a formalized `EmergentConstraint`.
+- **Mechanism**: The constraint consists of a specific rule and its justification. This constraint is then persistently injected into the active schema of the `generateResponse` context window via a `+++DCCDSchemaGuard` PDL decorator. Thus, tacit human context is effectively "inverted" into a rigorous mathematical boundary for the collaborative agents.
