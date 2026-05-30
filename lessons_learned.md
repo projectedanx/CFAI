@@ -37,3 +37,9 @@ This repository was transitioned from a standard multi-agent problem-solving fra
 - **Topological Derivative of Stakeholder Dissonance**: Resolving stakeholder dissonance is no longer about reaching a semantic average. Instead, we use S5-Modal Attention to calculate the specific organizational force required to lock the structural pieces together, acknowledging the conflict as a stable topological state.
 - **Epsilon-Tolerance Paraconsistency**: Technical debt is not just deferred cost; it resides within the epsilon band of a computational superposition. We manage it as a Transition Fit to prevent Bifurcation until the operational workflow can resolve the architecture fully.
 - **SCOS Persona Metrology**: We have replaced conversational system prompts with Prompt Dimensioning & Tolerancing (PD&T), utilizing canonical Feature Control Frames (`AGENTS.md`) to define the exact dimensional boundaries of the Production-Ready PM Persona.
+
+## Epistemic Escrow & Betti Loop implementation
+
+- **TDD & Paraconsistent Verification**: The integration of `services/escrowService.ts` verified that holding contradictions (CFDI isolation) without immediate collapse yields structurally sound software execution.
+- **UI as Epistemic Tooling**: The addition of the Epistemic Escrow UI demonstrates that software interfaces can act as explicit boundaries for the Golden Scar Protocol, allowing users to consciously inject divergent agent thoughts with a structural weight.
+- **Architectural Discovery**: Acknowledged that decoupling standard conversational logic from divergent output via `EscrowedMessage` types perfectly models the mereological constraints of the Zachman Framework.

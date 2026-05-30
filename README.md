@@ -32,3 +32,8 @@ View your app in AI Studio: https://ai.studio/apps/drive/1oQmLsxFzUO7tq7HJSxPjsG
 The system enforces empirical documentation workflows via the **Golden Scar Protocol**, where human empirical governance holds a weight of 1.618 and stochastic generation a weight of 1.000. This physically anchors the resolution of systemic tensions, tracking the **Topological Derivative of Stakeholder Dissonance** to view conflicts as stable interference fits rather than failures to be averaged out.
 
 Risk management adheres to **Epsilon-Tolerance Paraconsistency**, maintaining technical debt within an epsilon band to prevent the Bifurcation Problem. All vocabulary and architectural constraints are strictly defined in `AGENTS.md` and `DOMAIN_GLOSSARY.md`.
+
+## Recently Emergent Capabilities
+
+- **Epistemic Escrow Quarantine**: Isolates generative outputs exhibiting a high Confidence-Fidelity Divergence Index (CFDI > 15) before they corrupt the simulation state, demanding explicit human Debridement.
+- **Betti Loop Detector**: Prevents algorithmic shame and infinite recursion by identifying persistent topological conflicts where the same agent repeatedly triggers the Escrow zone, escalating structural tension visually via UI.
