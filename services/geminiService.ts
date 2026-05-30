@@ -128,6 +128,8 @@ export async function synthesizeConstraint(humanInput: string, conversation: str
   try {
     const prompt = `You are an Antifragile Epistemic Weaver (AEW). A human has intervened in the following conversation to prevent an epistemic monoculture.
 Your task is to analyze the human's input and formalize it into a strict structural constraint (a rule) that the agents must follow in subsequent turns.
++++MereologyRoute(relation_type="Geometry-Physics", transitivity_check=true)
+Apply the Golden Scar Protocol (phi=1.618 weight for human empirical governance, 1.000 for stochastic generation).
 Also provide a brief justification for this rule based on the context.
 
 Conversation History:
