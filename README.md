@@ -26,3 +26,9 @@ View your app in AI Studio: https://ai.studio/apps/drive/1oQmLsxFzUO7tq7HJSxPjsG
 2. Set the `GEMINI_API_KEY` in `.env.local` to your Gemini API key
 3. Run the app:
    `npm run dev`
+
+## Deterministic Metrology & Empirical Documentation (SCOS-v6.1)
+
+The system enforces empirical documentation workflows via the **Golden Scar Protocol**, where human empirical governance holds a weight of 1.618 and stochastic generation a weight of 1.000. This physically anchors the resolution of systemic tensions, tracking the **Topological Derivative of Stakeholder Dissonance** to view conflicts as stable interference fits rather than failures to be averaged out.
+
+Risk management adheres to **Epsilon-Tolerance Paraconsistency**, maintaining technical debt within an epsilon band to prevent the Bifurcation Problem. All vocabulary and architectural constraints are strictly defined in `AGENTS.md` and `DOMAIN_GLOSSARY.md`.
