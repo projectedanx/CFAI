@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { ModelId, Message, Model, LearningDataPoint, SymbolicScar, EmergentConstraint } from './types';
+import { ModelId, Message, Model, LearningDataPoint, SymbolicScar, EmergentConstraint, EscrowedMessage } from './types';
+import { processMessageForEscrow, BettiLoopDetector } from './services/escrowService';
 import { splitTask, generateResponse, evaluateContribution, synthesizeConstraint } from './services/geminiService';
 import Header from './components/Header';
 import TaskInputForm from './components/TaskInputForm';
@@ -26,6 +27,10 @@ const App: React.FC = () => {
   const [awaitingIntervention, setAwaitingIntervention] = useState<boolean>(false);
   const [humanInput, setHumanInput] = useState<string>('');
   const [activeConstraints, setActiveConstraints] = useState<EmergentConstraint[]>([]);
+  const [escrowedMessages, setEscrowedMessages] = useState<EscrowedMessage[]>([]);
+  const [bettiLoopState, setBettiLoopState] = useState<{isLoopDetected: boolean, bettiLoopLevel: number}>({isLoopDetected: false, bettiLoopLevel: 0});
+  const bettiDetectorRef = useRef(new BettiLoopDetector());
+
 
   const isSimulatingRef = useRef(isSimulating);
   useEffect(() => {
@@ -49,7 +54,11 @@ const App: React.FC = () => {
     setAwaitingIntervention(false);
     setHumanInput('');
     setActiveConstraints([]);
+    setEscrowedMessages([]);
+    bettiDetectorRef.current.resetLoop();
+    setBettiLoopState({isLoopDetected: false, bettiLoopLevel: 0});
   }
+
 
   const handleTaskSubmit = async (submittedTask: string) => {
     resetState();
@@ -87,12 +96,33 @@ const App: React.FC = () => {
     try {
       const responseContent = await generateResponse(modelToAct.name, modelToAct.lens, conversationText, activeConstraints);
       const newMessage: Message = { sender: activeModel, content: responseContent, turn: currentTurn };
-      setConversation(prev => [...prev, newMessage]);
-  
+
       const updatedConversationText = `${conversationText}\nAgent ${activeModel}: ${responseContent}`;
-      const { cfdi, bai, reasoning } = await evaluateContribution(task, updatedConversationText);
-  
+      const evaluation = await evaluateContribution(task, updatedConversationText);
+      const { cfdi, bai, reasoning } = evaluation;
+
       setLearningHistory(prev => [...prev, { turn: currentTurn, cfdi, bai }]);
+
+      const escrowResult = processMessageForEscrow(newMessage, evaluation);
+
+      if (escrowResult.isEscrowed && escrowResult.escrowedMessage) {
+        setEscrowedMessages(prev => [...prev, escrowResult.escrowedMessage!]);
+
+        const loopState = bettiDetectorRef.current.registerEscrow(activeModel, currentTurn);
+        setBettiLoopState({
+            isLoopDetected: loopState.isLoopDetected,
+            bettiLoopLevel: loopState.bettiLoopLevel
+        });
+
+        setIsSimulating(false);
+        setAwaitingIntervention(true); // Treat escrow as needing intervention
+        return;
+      }
+
+      // If not escrowed, add to conversation and reset loop detector
+      setConversation(prev => [...prev, newMessage]);
+      bettiDetectorRef.current.resetLoop();
+      setBettiLoopState({isLoopDetected: false, bettiLoopLevel: 0});
 
       if (bai > 70) {
         setSymbolicScars(prev => [...prev, {
@@ -114,6 +144,31 @@ const App: React.FC = () => {
     }
   }, [activeModel, conversation, currentTurn, models, task]);
 
+
+
+  const handleDebridement = (messageIndex: number, action: 'inject' | 'discard') => {
+    const messageToProcess = escrowedMessages[messageIndex];
+
+    if (action === 'inject') {
+        // Human applies Golden Scar Protocol (weight 1.618) and injects the divergent thought
+        setConversation(prev => [...prev, {
+            sender: messageToProcess.sender,
+            content: `[GOLDEN SCAR INJECTION: ${messageToProcess.content}]`,
+            turn: messageToProcess.turn
+        }]);
+    }
+
+    // Remove from escrow
+    setEscrowedMessages(prev => prev.filter((_, idx) => idx !== messageIndex));
+    setAwaitingIntervention(false);
+    setIsSimulating(true);
+
+    // Increment turn and switch agent as if turn completed normally (if injected) or to try again (if discarded)
+    if(action === 'inject'){
+       setActiveModel(prev => (prev === ModelId.A ? ModelId.B : ModelId.A));
+       setCurrentTurn(prev => prev + 1);
+    }
+  };
 
   const handleHumanInterventionSubmit = async () => {
     if (!humanInput.trim()) return;
@@ -188,7 +243,51 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {awaitingIntervention && (
+        {escrowedMessages.length > 0 && awaitingIntervention && (
+            <div className="bg-brand-surface border border-purple-600 rounded-xl p-6 shadow-lg mb-8">
+              <h3 className="text-xl font-semibold text-purple-400 mb-4">Epistemic Escrow Quarantine</h3>
+              <p className="text-brand-text-secondary mb-4">
+                A high Confidence-Fidelity Divergence Index (CFDI) has been detected. The message has been sequestered.
+                Apply Human Debridement (Golden Scar Protocol) to resolve.
+              </p>
+
+              {bettiLoopState.isLoopDetected && (
+                  <div className="bg-red-900/30 border border-red-500 text-red-300 p-3 rounded-lg mb-4">
+                      <strong>🚨 Betti Loop Detected (Level {bettiLoopState.bettiLoopLevel})!</strong>
+                      The same agent is repeatedly producing high-divergence output, indicating a persistent topological conflict.
+                  </div>
+              )}
+
+              <ul className="space-y-4">
+                  {escrowedMessages.map((msg, idx) => (
+                      <li key={idx} className="p-4 bg-purple-900/20 border border-purple-800 rounded-lg">
+                          <div className="flex justify-between text-sm text-purple-300 mb-2">
+                              <span>Agent {msg.sender} (Turn {msg.turn})</span>
+                              <span>CFDI: {msg.evaluation.cfdi}</span>
+                          </div>
+                          <p className="text-brand-text-primary text-sm mb-2">{msg.content}</p>
+                          <p className="text-brand-text-secondary text-xs italic mb-4">Reasoning: {msg.evaluation.reasoning}</p>
+                          <div className="flex space-x-4">
+                              <button
+                                onClick={() => handleDebridement(idx, 'inject')}
+                                className="flex-1 bg-purple-600 hover:bg-purple-500 text-white py-2 rounded-md transition"
+                              >
+                                  Inject (Golden Scar)
+                              </button>
+                              <button
+                                onClick={() => handleDebridement(idx, 'discard')}
+                                className="flex-1 bg-gray-600 hover:bg-gray-500 text-white py-2 rounded-md transition"
+                              >
+                                  Discard & Retry
+                              </button>
+                          </div>
+                      </li>
+                  ))}
+              </ul>
+            </div>
+        )}
+
+        {escrowedMessages.length === 0 && awaitingIntervention && (
           <div className="bg-brand-surface border border-yellow-600 rounded-xl p-6 shadow-lg">
             <h3 className="text-xl font-semibold text-yellow-500 mb-4">Epistemic Mirror Trap Detected (BAI &gt; 70)</h3>
             <p className="text-brand-text-secondary mb-4">

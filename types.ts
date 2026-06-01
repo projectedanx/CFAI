@@ -33,3 +33,18 @@ export interface EmergentConstraint {
   rule: string;
   justification: string;
 }
+
+export interface EscrowedMessage extends Message {
+  evaluation: {
+    cfdi: number;
+    bai: number;
+    reasoning: string;
+  };
+  escrowReason: string;
+}
+
+export interface BettiLoopState {
+  isLoopDetected: boolean;
+  bettiLoopLevel: number;
+  lastEscrowedAgent: ModelId | null;
+}
