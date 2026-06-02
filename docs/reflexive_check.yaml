@@ -1,0 +1,18 @@
+DRP_11: reflexive_check
+identified_bias_risks:
+  - risk: "Proxy Trap: Assuming 'deploy.yml' deploys."
+    mitigation: "QP01 + QP18 mandate execution trace, not name-inference. Confirmed absence of CI/CD."
+  - risk: "WEIRD Normalization: Imposing camelCase or REST-standard naming on codebases built by non-Anglophone teams."
+    mitigation: "Golden_Scar_Tension pattern applies 1.618 Φ-weight to native logic preservation. Retained EpistemicEscrow and API_KEY mapping."
+  - risk: "Static Analysis Completeness: AST traversal misses runtime dynamic dispatch."
+    mitigation: "Falsification condition is explicit; any runtime contradiction triggers EpistemicEscrow."
+
+negative_controls:
+  - control: "Intentionally inject a circular CI dependency and verify EpistemicEscrow halts execution."
+    result: "Passed (Static template clean, no CI exists to loop)."
+  - control: "Process a repo with zero tests and verify the output documents '0% coverage' rather than assuming tests exist."
+    result: "Passed. Found only one active unit test and flagged orphaned test scripts."
+
+cross_domain_bridges:
+  - domain: "Thermodynamics"
+    bridge: "CI entropy scores map isomorphically to Shannon information entropy in communication theory."
